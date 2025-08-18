@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NeuroStride Forensic Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+  --accent: #00e5ff; 
+  --accent-dark: #00bcd4;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-main);
+  background: url('https://media.istockphoto.com/id/1136760651/photo/blue-circuit-board-background-of-computer-motherboard-and-magnifier-glass-with-red-zoomed.jpg?s=612x612&w=0&k=20&c=K3fSkMwnUs07L5D6NeNQDg7fsidm-tPzpoMIBc3Uxeo=') center/cover no-repeat fixed;
+  display: flex; justify-content: center; align-items: center;
+  height: 100vh; color: #fff;
+  overflow: hidden;
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(4px);
+  z-index: -1;
+}
+
+.login-card {
+  background: rgba(20, 20, 20, 0.85);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  max-width: 900px;
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 40px;
+}
+
+.details {
+  flex: 1;
+}
+
+.details h2 {
+  color: var(--accent);
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.details ul {
+  list-style: disc;
+  margin-left: 20px;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+.fingerprint-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fingerprint {
+  position: relative;
+  width: 180px; height: 180px;
+  background: url('https://le.fbi.gov/image-repository/fingerprint-on-digital-screen-stock-image.jpg/@@images/image') center/contain no-repeat;
+  cursor: pointer;
+  filter: drop-shadow(0 0 15px var(--accent));
+  border-radius: 12px;
+  transition: transform 0.3s;
+  margin-bottom: 20px;
+}
+.fingerprint:hover { transform: scale(1.05); }
+
+.scan-line {
+  position: absolute; top: 0; left: 50%;
+  width: 120px; height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  transform: translateX(-50%);
+  animation: scan 2s linear infinite;
+  box-shadow: 0 0 15px var(--accent);
+}
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  50% { top: 174px; opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 0; opacity: 0; }
+}
+
+.status {
+  font-size: 14px;
+  color: #aaa;
+  min-height: 22px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.progress-container {
+  width: 180px; height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  display: none;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  box-shadow: 0 0 10px var(--accent);
+  transition: width 0.1s linear;
+  border-radius: 5px;
+}
+
+@media (max-width: 800px) {
+  .login-card {
+    flex-direction: column;
+    gap: 25px;
+    padding: 25px;
+  }
+  .fingerprint { width: 140px; height: 140px; }
+  .scan-line { width: 100px; height: 5px; }
+  .progress-container { width: 140px; height: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="details">
+    <h2>NeuroStride Forensic Portal</h2>
+    <ul style="columns: 2; column-gap: 20px;">
+      <li>Detects gait anomalies to identify suspicious behavior.</li>
+      <li>Monitors movement patterns in real-time for forensic analysis.</li>
+      <li>Helps law enforcement track missing or suspect individuals.</li>
+      <li>Records and stores gait data securely for investigations.</li>
+      <li>Analyzes unusual movements to catch potential thieves or intruders.</li>
+      <li>Supports forensic experts with accurate, actionable data.</li>
+      <li>Maintains audit trails for legal and investigative purposes.</li>
+      <li>Provides secure access via fingerprint authentication.</li>
+      <li>Generates detailed reports for evidence presentation.</li>
+      <li>Integrates healthcare and forensic insights for accurate assessment.</li>
+    </ul>
+  </div>
+
+  <div class="fingerprint-container">
+    <div class="fingerprint" id="fingerprintBox">
+      <div class="scan-line"></div>
+    </div>
+    <div class="status" id="status">Place your finger on the scanner to authenticate</div>
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const statusEl = document.getElementById('status');
+const progressContainer = document.getElementById('progressContainer');
+const progressBar = document.getElementById('progressBar');
+const fingerprintBox = document.getElementById('fingerprintBox');
+
+let scanInterval, progress = 0, msgIndex = 0;
+const messages = [
+  "Initializing biometric scanner...",
+  "Capturing ridge patterns...",
+  "Analyzing minutiae points...",
+  "Matching against database...",
+  "Decrypting user credentials..."
+];
+
+function startScan() {
+  progress = 0; msgIndex = 0;
+  progressContainer.style.display = 'block';
+  progressBar.style.width = "0%";
+  statusEl.textContent = messages[msgIndex];
+
+  scanInterval = setInterval(() => {
+    progress += 5 + Math.floor(Math.random() * 3);
+    if (progress > 100) progress = 100;
+    progressBar.style.width = progress + "%";
+
+    if (progress % 20 === 0 && msgIndex < messages.length - 1) {
+      msgIndex++;
+      statusEl.textContent = messages[msgIndex];
+    }
+
+    if (progress >= 100) {
+      clearInterval(scanInterval);
+      statusEl.textContent = "Fingerprint matched ✅";
+      setTimeout(() => {
+        statusEl.textContent = "Access Granted — Redirecting...";
+        setTimeout(() => {
+          window.location.href = "candidates.html";
+        }, 2000);
+      }, 1500);
+    }
+  }, 200);
+}
+
+function stopScan() {
+  clearInterval(scanInterval);
+  if (progress < 100) {
+    statusEl.textContent = "Scan aborted ❌";
+    progressContainer.style.display = 'none';
+  }
+}
+
+fingerprintBox.addEventListener('mousedown', startScan);
+fingerprintBox.addEventListener('mouseup', stopScan);
+fingerprintBox.addEventListener('mouseleave', stopScan);
+fingerprintBox.addEventListener('touchstart', startScan);
+fingerprintBox.addEventListener('touchend', stopScan);
+</script>
+
+</body>
+</html>
