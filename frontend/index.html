@@ -40,7 +40,7 @@
         </svg>
         <div>
           <h1>NeuroStride</h1>
-          <p class="tag">Gait Forensics — Webcam & Video</p>
+          <p class="tag">Gait Forensics — Webcam, Video & Image</p>
         </div>
       </div>
       <nav class="top-actions">
@@ -49,15 +49,20 @@
           Upload Video
           <input id="fileInput" type="file" accept="video/*" hidden>
         </label>
+        <label class="btn btn-secondary">
+          Upload Image
+          <input id="imageInput" type="file" accept="image/*" hidden>
+        </label>
       </nav>
     </div>
   </header>
 
   <main class="container main-grid">
-    <!-- Video -->
+    <!-- Video / Image Preview -->
     <section class="card video-card">
       <div class="video-stage">
         <video id="video" playsinline autoplay muted></video>
+        <img id="uploadedImage" style="display:none; max-width:100%; height:auto;" />
         <canvas id="overlay"></canvas>
       </div>
       <div class="video-controls">
@@ -108,7 +113,6 @@
         <button id="saveReportBtn" class="btn">Save Report (PDF)</button>
         <button id="clearBtn" class="btn btn-secondary">Clear</button>
       </div>
-
     </aside>
   </main>
 
@@ -118,8 +122,12 @@
     </div>
   </footer>
 
+  <!-- Scripts -->
   <script src="app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 </body>
 </html>
