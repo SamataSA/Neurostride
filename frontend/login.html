@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NeuroStride Forensic Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+  --accent: #00e5ff; 
+  --accent-dark: #00bcd4;
+  --accent-glow: rgba(0, 229, 255, 0.8);
+  --bg-overlay: rgba(0, 0, 0, 0.55);
+  --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+      font-family: var(--font-main);
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* Video background */
+    video.bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    /* Overlay */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      background: var(--bg-overlay);
+      backdrop-filter: brightness(1.2) blur(1px);
+      z-index: -1;
+    }
+/* Card */
+.login-card {
+  background: rgba(15, 15, 25, 0.78);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.8), 0 0 25px var(--accent-glow);
+  max-width: 950px;
+  width: 92%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: fadeIn 1.2s ease forwards;
+}
+
+/* Text section */
+.details { flex: 1; }
+.details h2 {
+  color: var(--accent);
+  margin-bottom: 18px;
+  font-size: 28px;
+  text-shadow: 0 0 15px var(--accent-glow);
+  font-weight: 600;
+}
+.details ul {
+  list-style: none;
+  line-height: 1.7;
+  color: #ddd;
+  columns: 2;
+  column-gap: 25px;
+}
+.details li::before {
+  content: "▸ ";
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* Fingerprint area */
+.fingerprint-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fingerprint {
+  position: relative;
+  width: 190px; height: 190px;
+  background: url('https://le.fbi.gov/image-repository/fingerprint-on-digital-screen-stock-image.jpg/@@images/image') center/contain no-repeat;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  margin-bottom: 25px;
+  box-shadow: 0 0 30px var(--accent-glow), inset 0 0 25px rgba(0,229,255,0.25);
+  border: 2px solid var(--accent-dark);
+}
+.fingerprint:hover { 
+  transform: scale(1.08) rotate(2deg);
+  box-shadow: 0 0 40px var(--accent), inset 0 0 30px rgba(0,229,255,0.4);
+}
+
+/* Glow pulse */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 30px var(--accent-glow), inset 0 0 25px rgba(0,229,255,0.25); }
+  50% { box-shadow: 0 0 45px var(--accent), inset 0 0 35px rgba(0,229,255,0.45); }
+}
+.fingerprint { animation: glowPulse 2.5s infinite ease-in-out; }
+
+/* Scan line */
+.scan-line {
+  position: absolute; top: 0; left: 50%;
+  width: 130px; height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  transform: translateX(-50%);
+  animation: scan 2.5s linear infinite;
+  box-shadow: 0 0 20px var(--accent);
+}
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  50% { top: 180px; opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 0; opacity: 0; }
+}
+
+/* Status */
+.status {
+  font-size: 15px;
+  color: #bbb;
+  min-height: 24px;
+  font-weight: 500;
+  text-align: center;
+}
+.status.success { color: #4cff8f; text-shadow: 0 0 12px #4cff8f; }
+.status.error { color: #ff5c5c; text-shadow: 0 0 12px #ff5c5c; }
+
+/* Progress */
+.progress-container {
+  width: 190px; height: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  display: none;
+  margin-top: 12px;
+}
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  box-shadow: 0 0 12px var(--accent);
+  transition: width 0.1s linear;
+  border-radius: 6px;
+}
+
+/* FadeIn */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(25px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+  .login-card { flex-direction: column; gap: 30px; padding: 30px; }
+  .fingerprint { width: 150px; height: 150px; }
+  .scan-line { width: 110px; height: 5px; }
+  .progress-container { width: 150px; height: 10px; }
+}
+</style>
+</head>
+<body>
+<!-- Video background -->
+  <video class="bg-video" autoplay muted loop playsinline>
+    <source src="https://www.shutterstock.com/shutterstock/videos/1056263552/preview/stock-footage-cctv-ai-facial-recognition-camera-zoom-in-recognizes-person-elevated-security-camera-surveillance.webm" type="video/webm">
+    Your browser does not support the video tag.
+  </video>
+
+<div class="login-card">
+  <div class="details">
+    <h2>NeuroStride Forensic Portal</h2>
+    <ul>
+      <li>Detects gait anomalies to identify suspicious behavior.</li>
+      <li>Monitors movement patterns in real-time for forensic analysis.</li>
+      <li>Helps law enforcement track missing or suspect individuals.</li>
+      <li>Records and stores gait data securely for investigations.</li>
+      <li>Analyzes unusual movements to catch potential intruders.</li>
+      <li>Supports forensic experts with accurate, actionable data.</li>
+      <li>Maintains audit trails for legal and investigative purposes.</li>
+      <li>Provides secure access via fingerprint authentication.</li>
+      <li>Generates detailed reports for evidence presentation.</li>
+      <li>Integrates healthcare and forensic insights for assessment.</li>
+    </ul>
+  </div>
+
+  <div class="fingerprint-container">
+    <div class="fingerprint" id="fingerprintBox">
+      <div class="scan-line"></div>
+    </div>
+    <div class="status" id="status">Place your finger on the scanner to authenticate</div>
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const statusEl = document.getElementById('status');
+const progressContainer = document.getElementById('progressContainer');
+const progressBar = document.getElementById('progressBar');
+const fingerprintBox = document.getElementById('fingerprintBox');
+
+let scanInterval, progress = 0, msgIndex = 0;
+const messages = [
+  "Initializing biometric scanner...",
+  "Capturing ridge patterns...",
+  "Analyzing minutiae points...",
+  "Matching against database...",
+  "Decrypting user credentials..."
+];
+
+function startScan() {
+  progress = 0; msgIndex = 0;
+  progressContainer.style.display = 'block';
+  progressBar.style.width = "0%";
+  statusEl.textContent = messages[msgIndex];
+  statusEl.className = "status";
+
+  scanInterval = setInterval(() => {
+    progress += 5 + Math.floor(Math.random() * 3);
+    if (progress > 100) progress = 100;
+    progressBar.style.width = progress + "%";
+
+    if (progress % 20 === 0 && msgIndex < messages.length - 1) {
+      msgIndex++;
+      statusEl.textContent = messages[msgIndex];
+    }
+
+    if (progress >= 100) {
+      clearInterval(scanInterval);
+      statusEl.textContent = "Fingerprint matched ✅";
+      statusEl.classList.add("success");
+      setTimeout(() => {
+        statusEl.textContent = "Access Granted — Redirecting...";
+        setTimeout(() => {
+          window.location.href = "candidates.html";
+        }, 2000);
+      }, 1500);
+    }
+  }, 200);
+}
+
+function stopScan() {
+  clearInterval(scanInterval);
+  if (progress < 100) {
+    statusEl.textContent = "Scan aborted ❌";
+    statusEl.className = "status error";
+    progressContainer.style.display = 'none';
+  }
+}
+
+fingerprintBox.addEventListener('mousedown', startScan);
+fingerprintBox.addEventListener('mouseup', stopScan);
+fingerprintBox.addEventListener('mouseleave', stopScan);
+fingerprintBox.addEventListener('touchstart', startScan);
+fingerprintBox.addEventListener('touchend', stopScan);
+</script>
+
+</body>
+</html>

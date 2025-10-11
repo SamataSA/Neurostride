@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeuroStride — Gait Forensics</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .percentage-badge {
+      font-size: 2.2rem;
+      font-weight: 700;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 0.25rem;
+      min-width: 80px;
+      text-align: center;
+      color: #fff;
+    }
+    .match-confidence { background-color: #1e88e5; }
+    .red-label { background-color: #b00020; box-shadow: 0 0 8px rgba(176, 0, 32, 0.6); }
+    .green-label { background-color: #2e7d32; box-shadow: 0 0 8px rgba(46, 125, 50, 0.6); }
+    .highlight { background-color: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <!-- Animated Background Layers -->
+  <div class="dna-animation"></div>
+  <div class="binary-rain"></div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 21l4-12 4 8 4-14 4 18" 
+                fill="none" stroke="currentColor" 
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <h1>NeuroStride</h1>
+          <p class="tag">Gait Forensics — Webcam, Video & Image</p>
+        </div>
+      </div>
+      <nav class="top-actions">
+        <button id="startCamBtn" class="btn">Start Webcam</button>
+        <label class="btn btn-secondary">
+          Upload Video
+          <input id="fileInput" type="file" accept="video/*" hidden>
+        </label>
+        <label class="btn btn-secondary">
+          Upload Image
+          <input id="imageInput" type="file" accept="image/*" hidden>
+        </label>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-grid">
+    <!-- Video / Image Preview -->
+    <section class="card video-card">
+      <div class="video-stage">
+        <video id="video" playsinline autoplay muted></video>
+        <img id="uploadedImage" style="display:none; max-width:100%; height:auto;" />
+        <canvas id="overlay"></canvas>
+      </div>
+      <div class="video-controls">
+        <button id="captureBtn" class="btn muted">Capture Frame</button>
+        <button id="analyzeBtn" class="btn primary">Analyze Gait</button>
+        <div class="small">Status: <span id="status">Idle</span></div>
+      </div>
+    </section>
+
+    <!-- Analysis -->
+    <aside class="card results-card">
+      <h2>Forensic Analysis</h2>
+
+      <!-- Gait Match -->
+      <div class="result-block">
+        <h3>Match Confidence</h3>
+        <div class="percentage-badge match-confidence" id="matchConfidence">—</div>
+        <div class="muted small">Matched suspect ID: <span id="suspectId">—</span></div>
+      </div>
+
+      <!-- Suspicious Percentage -->
+      <div class="result-block">
+        <h3>Suspicious Level</h3>
+        <div class="percentage-badge" id="suspiciousPercent">—</div>
+      </div>
+
+      <!-- Eye & Nervousness Metrics -->
+      <div class="result-block">
+        <h3>Behavior Metrics</h3>
+        <ul id="behaviorMetrics" class="list-muted highlight">
+          <li>Eye Movement: —</li>
+          <li>Nervousness: —</li>
+          <li>Facial Tension: —</li>
+        </ul>
+      </div>
+
+      <!-- Suspicious Behavior -->
+      <div class="result-block">
+        <h3>Suspicious Behavior</h3>
+        <ul id="suspiciousList" class="list-muted highlight">
+          <li>No suspicious</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-block">
+        <h3>Actions</h3>
+        <button id="saveReportBtn" class="btn">Save Report (PDF)</button>
+        <button id="clearBtn" class="btn btn-secondary">Clear</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>© <span id="year"></span> NeuroStride — For forensic use only.</small>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+</body>
+</html>
